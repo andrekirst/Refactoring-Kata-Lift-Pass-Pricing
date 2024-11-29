@@ -11,10 +11,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MySql.Data" Version="8.0.15" />
+    <PackageReference Include="MySql.Data" Version="9.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Owin" Version="2.2.0" />
-    <PackageReference Include="Nancy" Version="2.0.0-clinteastwood" />
+    <PackageReference Include="Microsoft.AspNetCore.Owin" Version="8.0.11" />
+    <PackageReference Include="Nancy" Version="2.0.0" />
   </ItemGroup>
 
 </Project>
