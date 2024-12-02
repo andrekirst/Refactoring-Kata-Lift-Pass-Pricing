@@ -53,10 +53,12 @@ namespace LiftPassPricing
 
                     if (age != null && age < 6)
                     {
+                        // New
                         return "{ \"cost\": 0}";
                     }
                     else
                     {
+                        // >= 6
                         reduction = 0;
 
                         if (!"night".Equals(this.Request.Query["type"]))
@@ -98,6 +100,7 @@ namespace LiftPassPricing
                             // TODO apply reduction for others
                             if (age != null && age < 15)
                             {
+                                // New
                                 return "{ \"cost\": " + (int)Math.Ceiling(result * .7) + "}";
                             }
                             else
@@ -124,6 +127,7 @@ namespace LiftPassPricing
                         }
                         else
                         {
+                            // Night
                             if (age != null && age >= 6)
                             {
                                 if (age > 64)
@@ -137,6 +141,7 @@ namespace LiftPassPricing
                             }
                             else
                             {
+                                // New
                                 return "{ \"cost\": 0}";
                             }
                         }

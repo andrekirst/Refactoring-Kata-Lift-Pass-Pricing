@@ -1,21 +1,20 @@
 namespace Domain;
 
-public class LiftPassPriceCalculator
+public class LiftPassPriceCalculator(IReductionService reductionService)
 {
     public double Calculate(LiftPassPriceCalulatorParameters parameters)
     {
-        if (parameters.Age < 6)
+        var (age, isHoliday, dayOfWeek, type, cost) = parameters;
+
+        var reductions = reductionService.CalculateReductions(new ReductionParameters(age, type, isHoliday, dayOfWeek));
+
+        foreach (var reduction in reductions)
         {
-            return 0;
+            cost = (int)Math.Ceiling(cost * (1 - reduction));
         }
-        return parameters.Cost;
+
+        return cost;
     }
 }
 
-public record LiftPassPriceCalulatorParameters
-{
-    public int Age { get; set; }
-    public bool IsHoliday { get; set; }
-    public string Type { get; set; }
-    public int Cost { get; set; }
-}
+public record LiftPassPriceCalulatorParameters(int? Age, bool IsHoliday, DayOfWeek? DayOfWeek, string Type, int Cost);

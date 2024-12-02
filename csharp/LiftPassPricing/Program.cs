@@ -2,6 +2,7 @@
 using System.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 using Nancy.Owin;
 
 namespace LiftPassPricing
@@ -15,8 +16,17 @@ namespace LiftPassPricing
         public static void Main(string[] args)
         {
             var host = new WebHostBuilder()
+                .ConfigureLogging(builder =>
+                {
+                    builder.SetMinimumLevel(LogLevel.Information);
+                    builder.AddDebug();
+                    builder.AddConsole();
+                })
                 .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseKestrel()
+                .UseKestrel(options =>
+                {
+                    options.AllowSynchronousIO = true;
+                })
                 .UseStartup<Startup>()
                 .Build();
 
