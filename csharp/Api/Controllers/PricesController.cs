@@ -1,15 +1,27 @@
+using System.Net;
+using Domain;
+using Domain.Database;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class PricesController(ILogger<PricesController> logger) : ControllerBase
+public class PricesController(
+    LiftPassPriceCalculator calculator,
+    BasePriceRepository basePriceRepository) : ControllerBase
 {
     [HttpGet(Name = "GetPrices")]
-    public Task<IActionResult> Get(int? age)
+    [ProducesResponseType<GetPricesResult>((int)HttpStatusCode.OK)]
+    public async Task<IActionResult> Get(int? age, string type, DateTime date, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var cost = await basePriceRepository.GetCostByType(type, cancellationToken);
+        var calculatedCosts = await calculator.Calculate(new LiftPassPriceCalulatorParameters(type, age, date, cost), cancellationToken);
+        
+        return Ok(new GetPricesResult
+        {
+            Cost = calculatedCosts
+        });
     }
 
     [HttpPut(Name = "Put Price")]
@@ -17,4 +29,9 @@ public class PricesController(ILogger<PricesController> logger) : ControllerBase
     {
         throw new NotImplementedException();
     }
+}
+
+public class GetPricesResult
+{
+    public double? Cost { get; set; }
 }

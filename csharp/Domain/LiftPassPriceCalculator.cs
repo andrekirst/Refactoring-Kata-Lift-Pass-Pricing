@@ -2,11 +2,11 @@ namespace Domain;
 
 public class LiftPassPriceCalculator(IReductionService reductionService)
 {
-    public double Calculate(LiftPassPriceCalulatorParameters parameters)
+    public async Task<double> Calculate(LiftPassPriceCalulatorParameters parameters, CancellationToken cancellationToken = default)
     {
-        var (age, isHoliday, dayOfWeek, type, cost) = parameters;
+        var (type, age, date, cost) = parameters;
 
-        var reductions = reductionService.CalculateReductions(new ReductionParameters(age, type, isHoliday, dayOfWeek));
+        var reductions = await reductionService.CalculateReductions(type, new ReductionParameters(age, date), cancellationToken);
 
         foreach (var reduction in reductions)
         {
@@ -16,5 +16,3 @@ public class LiftPassPriceCalculator(IReductionService reductionService)
         return cost;
     }
 }
-
-public record LiftPassPriceCalulatorParameters(int? Age, bool IsHoliday, DayOfWeek? DayOfWeek, string Type, int Cost);

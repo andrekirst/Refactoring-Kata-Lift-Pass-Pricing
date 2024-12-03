@@ -1,42 +1,25 @@
+using Domain.PriceReductionTables;
+
 namespace Domain;
 
 public interface IReductionService
 {
-    List<double> CalculateReductions(ReductionParameters parameters);
+    ValueTask<List<double>> CalculateReductions(string type, ReductionParameters parameters, CancellationToken cancellationToken = default);
 }
 
-public class ReductionService : IReductionService
+public class ReductionService(IEnumerable<IPriceReductionTable> priceReductionTables) : IReductionService
 {
-    private readonly List<ReductionRule> _reductionRules = [
-        new ReductionRule("1", param => param.Age < 6, 1.0),
-        new ReductionRule("2", param => param is { Age: >= 6 and < 15, Type: not "night" }, 0.3),
-        new ReductionRule("3", param => param is { Age: null or > 15, Type: not "night", IsHoliday: false, DayOfWeek: DayOfWeek.Monday }, 0.35),
-        new ReductionRule("4", param => param is { Type: not "night" }, 0.0),
-        new ReductionRule("5", param => param is { Age: > 64, Type: not "night" }, 0.25),
-        new ReductionRule("6", param => param is { Age: > 64, Type: "night" }, 0.6),
-        new ReductionRule("7", param => param is { Age: >= 6 and <= 64, Type: "night" }, 0.0)
-    ];
-    
-    public List<double> CalculateReductions(ReductionParameters parameters)
+    public ValueTask<List<double>> CalculateReductions(string type, ReductionParameters parameters, CancellationToken cancellationToken = default)
     {
-        var reductions = _reductionRules
-            .Where(reductionRule => reductionRule.Condition(parameters))
-            .Select(reductionRule => reductionRule.Result)
-            .ToList();
+        var priceReductionTable = priceReductionTables.FirstOrDefault(p => p.Type == type);
         
-        var x = _reductionRules
-            .Where(reductionRule => reductionRule.Condition(parameters))
-            .Select(reductionRule => reductionRule)
-            .ToList();
+        if (priceReductionTable is null)
+        {
+            throw new NotSupportedTypeException(type);
+        }
 
-        return reductions.Any(r => r > 0.0)
-            ? reductions
-                .Where(r => r > 0.0)
-                .ToList()
-            : reductions;
+        return priceReductionTable
+            .GetReductions(parameters, cancellationToken)
+            .ToListAsync(cancellationToken);
     }
 }
-
-public record ReductionRule(string Name, Func<ReductionParameters, bool> Condition, double Result);
-
-public record ReductionParameters(int? Age, string Type, bool IsHoliday = false, DayOfWeek? DayOfWeek = null);
