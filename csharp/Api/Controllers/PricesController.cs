@@ -25,13 +25,15 @@ public class PricesController(
     }
 
     [HttpPut(Name = "Put Price")]
-    public Task<IActionResult> Put(int liftPassCost, string liftPassType)
+    public async Task<IActionResult> Put(int liftPassCost, string liftPassType, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var success = await basePriceRepository.CreateOrUpdateBasePriceByType(liftPassType, liftPassCost, cancellationToken);
+        return success ? Ok() : BadRequest();
     }
 }
 
 public class GetPricesResult
 {
-    public double? Cost { get; set; }
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global
+    public double? Cost { get; init; }
 }

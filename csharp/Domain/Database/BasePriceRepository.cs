@@ -5,13 +5,13 @@ namespace Domain.Database;
 
 public interface IBasePriceRepository
 {
-    Task<bool> CreateBasePrice(string type, int cost, CancellationToken cancellationToken = default);
+    Task<bool> CreateOrUpdateBasePriceByType(string type, int cost, CancellationToken cancellationToken = default);
     Task<int> GetCostByType(string type, CancellationToken cancellationToken = default);
 }
 
 public class BasePriceRepository(LiftPassDbContext dbContext) : IBasePriceRepository
 {
-    public async Task<bool> CreateBasePrice(string type, int cost, CancellationToken cancellationToken = default)
+    public async Task<bool> CreateOrUpdateBasePriceByType(string type, int cost, CancellationToken cancellationToken = default)
     {
         if (await dbContext.BasePrices.AnyAsync(bp => bp.Type == type, cancellationToken: cancellationToken))
         {
